@@ -35,7 +35,7 @@ jobs:
         run: mage-remote-run connection status
 
       - name: List Websites
-        run: mage-remote-run website list --format text
+        run: mage-remote-run website list --format json
 
       - name: List Store Groups
-        run: mage-remote-run store-group list --format text
+        run: mage-remote-run store group list --format json
