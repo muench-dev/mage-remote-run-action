@@ -96,3 +96,7 @@ runs:
         # Alternatively, use array construction which is safer but slightly more verbose in bash 3.x (mac default) vs 4.x
         # Given GH runners are ubuntu mostly, we can use arrays or just simple eval for now as arguments are quoted.
         eval "$CMD"
+
+branding:
+  icon: 'arrow-right'
+  color: 'orange'

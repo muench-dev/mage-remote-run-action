@@ -14,7 +14,7 @@ steps:
       node-version: '20'
 
   - name: Setup Mage Remote Run
-    uses: ./ # Or your-org/mage-remote-run-action@v1
+    uses: muench-dev/mage-remote-run-action@main
     with:
       profile-name: "MyStore"
       type: "ac-on-prem" # or magento-os, mage-os
@@ -30,7 +30,7 @@ steps:
 ```yaml
 steps:
   - name: Setup Mage Remote Run
-    uses: ./
+    uses: muench-dev/mage-remote-run-action@main
     with:
       profile-name: "MyCloudStore"
       type: "ac-cloud-paas"
