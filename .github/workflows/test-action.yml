@@ -1,0 +1,41 @@
+name: Test Action
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  test-paas-integration:
+    runs-on: ubuntu-latest
+    name: Test PaaS Integration
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Configure Mage Remote Run
+        uses: ./
+        with:
+          profile-name: "PaaS-Instance"
+          type: "ac-cloud-paas"
+          url: ${{ secrets.MAGE_URL }}
+          consumer-key: ${{ secrets.MAGE_CONSUMER_KEY }}
+          consumer-secret: ${{ secrets.MAGE_CONSUMER_SECRET }}
+          access-token: ${{ secrets.MAGE_ACCESS_TOKEN }}
+          token-secret: ${{ secrets.MAGE_ACCESS_TOKEN_SECRET }}
+          # Implicitly runs connection test unless no-test is true
+
+      - name: Verify Connection Status
+        run: mage-remote-run connection status
+
+      - name: List Websites
+        run: mage-remote-run website list --format text
+
+      - name: List Store Groups
+        run: mage-remote-run store-group list --format text

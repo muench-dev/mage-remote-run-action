@@ -1,0 +1,98 @@
+name: 'Setup Mage Remote Run'
+description: 'Installs mage-remote-run and configures a connection profile'
+inputs:
+  version:
+    description: 'Version of mage-remote-run to install'
+    required: false
+    default: 'latest'
+  profile-name:
+    description: 'Profile Name'
+    required: false
+    default: 'default'
+  type:
+    description: 'System Type (magento-os, mage-os, ac-on-prem, ac-cloud-paas, ac-saas)'
+    required: true
+  url:
+    description: 'Instance URL'
+    required: true
+  auth-method:
+    description: 'Auth Method (bearer, oauth1)'
+    required: false
+  client-id:
+    description: 'Client ID (SaaS)'
+    required: false
+  client-secret:
+    description: 'Client Secret (SaaS)'
+    required: false
+  token:
+    description: 'Bearer Token'
+    required: false
+  consumer-key:
+    description: 'Consumer Key (OAuth1)'
+    required: false
+  consumer-secret:
+    description: 'Consumer Secret (OAuth1)'
+    required: false
+  access-token:
+    description: 'Access Token (OAuth1)'
+    required: false
+  token-secret:
+    description: 'Token Secret (OAuth1)'
+    required: false
+  signature-method:
+    description: 'Signature Method (hmac-sha256, hmac-sha1)'
+    required: false
+  active:
+    description: 'Set as active profile'
+    required: false
+    default: 'true'
+  no-test:
+    description: 'Skip connection test'
+    required: false
+    default: 'false'
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install mage-remote-run
+      shell: bash
+      run: npm install -g mage-remote-run@${{ inputs.version }}
+
+    - name: Configure Connection
+      shell: bash
+      env:
+        INPUT_NAME: ${{ inputs.profile-name }}
+        INPUT_TYPE: ${{ inputs.type }}
+        INPUT_URL: ${{ inputs.url }}
+        INPUT_AUTH_METHOD: ${{ inputs.auth-method }}
+        INPUT_CLIENT_ID: ${{ inputs.client-id }}
+        INPUT_CLIENT_SECRET: ${{ inputs.client-secret }}
+        INPUT_TOKEN: ${{ inputs.token }}
+        INPUT_CONSUMER_KEY: ${{ inputs.consumer-key }}
+        INPUT_CONSUMER_SECRET: ${{ inputs.consumer-secret }}
+        INPUT_ACCESS_TOKEN: ${{ inputs.access-token }}
+        INPUT_TOKEN_SECRET: ${{ inputs.token-secret }}
+        INPUT_SIGNATURE_METHOD: ${{ inputs.signature-method }}
+        INPUT_ACTIVE: ${{ inputs.active }}
+        INPUT_NO_TEST: ${{ inputs.no-test }}
+      run: |
+        CMD="mage-remote-run connection add --name \"$INPUT_NAME\" --type \"$INPUT_TYPE\" --url \"$INPUT_URL\""
+
+        if [ -n "$INPUT_AUTH_METHOD" ]; then CMD="$CMD --auth-method \"$INPUT_AUTH_METHOD\""; fi
+        if [ -n "$INPUT_CLIENT_ID" ]; then CMD="$CMD --client-id \"$INPUT_CLIENT_ID\""; fi
+        if [ -n "$INPUT_CLIENT_SECRET" ]; then CMD="$CMD --client-secret \"$INPUT_CLIENT_SECRET\""; fi
+        if [ -n "$INPUT_TOKEN" ]; then CMD="$CMD --token \"$INPUT_TOKEN\""; fi
+        if [ -n "$INPUT_CONSUMER_KEY" ]; then CMD="$CMD --consumer-key \"$INPUT_CONSUMER_KEY\""; fi
+        if [ -n "$INPUT_CONSUMER_SECRET" ]; then CMD="$CMD --consumer-secret \"$INPUT_CONSUMER_SECRET\""; fi
+        if [ -n "$INPUT_ACCESS_TOKEN" ]; then CMD="$CMD --access-token \"$INPUT_ACCESS_TOKEN\""; fi
+        if [ -n "$INPUT_TOKEN_SECRET" ]; then CMD="$CMD --token-secret \"$INPUT_TOKEN_SECRET\""; fi
+        if [ -n "$INPUT_SIGNATURE_METHOD" ]; then CMD="$CMD --signature-method \"$INPUT_SIGNATURE_METHOD\""; fi
+        
+        if [ "$INPUT_ACTIVE" == "true" ]; then CMD="$CMD --active"; fi
+        if [ "$INPUT_NO_TEST" == "true" ]; then CMD="$CMD --no-test"; fi
+
+        echo "Executing: $CMD"
+        # Be careful with eval, but inputs are from workflow which is trusted context usually.
+        # Alternatively, use array construction which is safer but slightly more verbose in bash 3.x (mac default) vs 4.x
+        # Given GH runners are ubuntu mostly, we can use arrays or just simple eval for now as arguments are quoted.
+        eval "$CMD"
